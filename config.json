@@ -1,9 +1,18 @@
 {
     "database": {
-        "server": "testexyzwtrtwr.database.windows.net", 
+        "server": "testexyzwtrtwr.database.windows.net",
         "user": "adminbandtec",
         "password": "b@ndtec2018",
         "database": "gf2018",
+        "options": {
+            "encrypt": true
+        }
+    },
+    "database2": {
+        "server": "pedropadilha.database.windows.net",
+        "user": "pedropadilha13",
+        "password": "Banco123",
+        "database": "notetrak",
         "options": {
             "encrypt": true
         }

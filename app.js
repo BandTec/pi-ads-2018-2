@@ -6,7 +6,7 @@ var logger = require('morgan');
 var session = require('express-session');
 
 var indexRouter = require('./routes/index');
-//var loginRouter = require('./routes/login');
+var loginRouter = require('./routes/login');
 //var signupRouter = require('./routes/signup');
 //var logoutRouter = require('./routes/logout');
 var leituraRouter = require('./routes/leitura');
@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 
 app.use('/', indexRouter);
 app.use('/index', indexRouter);
-//app.use('/login', loginRouter);
+app.use('/login', loginRouter);
 //app.use('/signup', signupRouter);
 //app.use('/logout', logoutRouter);
 app.use('/leitura', leituraRouter);

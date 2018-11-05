@@ -33,12 +33,7 @@ router.post('/', (req, res, next) => {
 			});
 		} else {
 			console.log('tentando consulta no banco...');
-			Database.query(`SELECT * FROM usuario WHERE login = '${login}';`, (error, results, rows) => {
-				console.log('entrou no o login');
-				const msgErro = {'mensagem': "Falha no login"};
-				if (error) {
-					res.status(401).render('login', msgErro);
-				}
+			Database.query(`SELECT * FROM usuario WHERE login = '${login}';`).then(results => {
 				if (results.length > 0) {
 					let decryptedPassword = cryptr.decrypt(results[0].senha);
 					if (decryptedPassword === senha) {
@@ -53,9 +48,9 @@ router.post('/', (req, res, next) => {
 					} else {
 						res.status(401).render('login', msgErro);
 					}
-				} else {
-					res.status(401).render('login', msgErro);
 				}
+			}).catch(error => {
+				res.status(401).render('login', {'mensagem': "Falha no login"});
 			});
 		}
     

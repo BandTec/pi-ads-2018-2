@@ -6,51 +6,45 @@ const Cryptr = require('cryptr');
 const config = require('../config');
 const cryptr = new Cryptr(config.security.key);
 
-router.get('/', (req, res, next) => {
-    if (!req.session.user || req.session.user && !req.session.user.logged_in) {
-        res.render('login', {
-            'message': req.session.message || ''
-        });
-    } else {
-        res.render('index', {
-            session: req.session
-        });
-    }
-});
-
+// rota de autenticação
 router.post('/', (req, res, next) => {
 	console.log('tentando autenticar...');
 	
 	try {
 			
+		// após o body, são os nomes dos campos no formulário	
 		var login = req.body.login;
 		var senha = req.body.senha;
 		
+		const msgErro = {'mensagem': 'Login e/ou senha inválidos!'};
+		
 		if (isNull(login) || isNull(senha)) {
 			console.log('Login e/ou senha inválidos');
-			res.render('login', {
-				'mensagem': 'Login e/ou senha inválidos!'
-			});
+			res.render('login', msgErro);
 		} else {
 			console.log('tentando consulta no banco...');
+			// altere aqui o seu select de acordo com sua tabela
 			Database.query(`SELECT * FROM usuario WHERE login = '${login}';`).then(results => {
-				if (results.length > 0) {
-					let decryptedPassword = cryptr.decrypt(results[0].senha);
-					if (decryptedPassword === senha) {
+				console.log(`Linhas: ${results.recordsets[0].length}`);
+				let linhas = results.recordsets[0];
+				if (linhas.length > 0) {
+					let senhaBanco = linhas[0].senha; // é 'senha' o nome de seu campo?
+					if (senhaBanco === senha) {
 						let user = {
-							nome: results[0].nome,
-							login: results[0].login,
-							id: results[0].id,
-							autenticado: true
+							// mantenha "nome" e "login" nos antes dos ":"
+							nome: linhas[0].nome, // é 'nome' o nome de seu campo?
+							login: linhas[0].login, // é 'login' o nome de seu campo?
 						};
 						req.session.user = user;
-						res.redirect('/index');
+						res.status(200).send('ok');
 					} else {
-						res.status(401).render('login', msgErro);
+						res.status(401).send(msgErro);
 					}
+				} else {
+					res.status(401).send(msgErro);
 				}
 			}).catch(error => {
-				res.status(401).render('login', {'mensagem': "Falha no login"});
+				res.status(401).send(msgErro);
 			});
 		}
     
@@ -59,6 +53,22 @@ router.post('/', (req, res, next) => {
 		res.send({'mensagem':`${e}`});
 	}
 
+});
+
+// rota que recupera os dados do usuário na sessão
+// a princípio, não precisa mexer aqui
+router.get('/sessao', (req, res, next) => {
+    if (req.session.user && req.session.user) {
+		const usuario = req.session.user;
+        res.json({
+            'nome': usuario.nome,
+            'login': usuario.login,
+        });
+    } else {
+        res.status(401).json({
+            'mensagem': 'Nenhum usuário na sessão'
+        });
+    }
 });
 
 module.exports = router;

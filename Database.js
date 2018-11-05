@@ -1,5 +1,5 @@
 'use strict';
-var config = require("./config").database2;
+var config = require("./config").database;
 var isNull = require('./script').isNull;
 
 module.exports = {
@@ -8,6 +8,7 @@ module.exports = {
             return null;
         } else {
             var sql = require('mssql');
+            sql.close();
         	return new Promise((resolve, reject) => {
                 console.log('Establishing connection to Database...')
                 sql.connect(config).then(pool => {
